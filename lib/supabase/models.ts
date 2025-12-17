@@ -18,6 +18,7 @@ export interface Column {
     title: string;
     sort_order: number;
     created_at: string;
+    user_id: string;
 
 
 }

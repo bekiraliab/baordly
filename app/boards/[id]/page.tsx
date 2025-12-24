@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { DialogHeader,Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useBoard, useBoards } from "@/lib/hooks/useBoards";
+import { useBoard, useBoards, } from "@/lib/hooks/useBoards";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
 export default function BoardPage() {
     const {id} = useParams<{id: string}>(); 
-    const {board, updateBoard} = useBoard(id);
+    const {board, updateBoard, Columns} = useBoard(id);
     const [isEditingTitle,setIsEditingTitle] = useState(false);
     const [newTitle,setNewTitle] = useState("");
     const [newColor,setNewColor] = useState("");
@@ -152,6 +152,24 @@ return (
          </div>
         </DialogContent>
     </Dialog>
+
+ {/* Board content goes here */}
+
+  <main>
+    {/* stats*/}
+
+    <div>
+     <div>
+        <div>
+            <span>
+                Total Tasks: 
+            </span>
+            {Columns.reduce((sum , col) => sum + col.tasks.length, 0)}
+        </div>
+     </div>
+    </div>
+  </main>
+
 </div>
 );
 }

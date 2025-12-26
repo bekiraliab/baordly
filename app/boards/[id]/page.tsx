@@ -1,12 +1,52 @@
 "use client"
 import Navbar from "@/components/navbar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DialogHeader,Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useBoard, useBoards, } from "@/lib/hooks/useBoards";
+import { ColumnWithTasks } from "@/lib/supabase/models";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { MoreHorizontal, Plus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+
+function Column({column,children,onCreateTask,onEditColumn}: {
+    column: ColumnWithTasks,
+    children?: React.ReactNode,
+    onCreateTask?: (taskData: any) => Promise<void>,
+    onEditColumn?: (column: ColumnWithTasks) => Promise<void>,
+}) {
+
+   return (
+   
+   <div className="w-full lg:flex-shrink-0 lg:w-80">
+    <div className="bg-white rounded-lg shadow-sm border">
+        {/* Column Header */}
+     <div className="p-3 sm:p-4 border-b">
+       <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2 min-w-0">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{column.title}</h3>
+            <Badge variant="secondary" className="text-xs flex-shrink-0">
+                {column.tasks.length} 
+            </Badge>
+        </div>
+        <Button variant="ghost" size="sm" className="flex-shrink-0">
+          <MoreHorizontal />  
+        </Button>
+       </div>
+     </div> 
+        {/* Column content */}
+       <div className="p-2">{children}</div>
+
+
+    </div>
+   </div>
+   );
+}
 
 export default function BoardPage() {
     const {id} = useParams<{id: string}>(); 
@@ -155,19 +195,102 @@ return (
 
  {/* Board content goes here */}
 
-  <main>
+  <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
     {/* stats*/}
 
-    <div>
-     <div>
-        <div>
-            <span>
-                Total Tasks: 
-            </span>
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+     <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+        <div className="text-sm text-gray-600">
+            <span className="font-medium text-gray-900">
+                Total Tasks : </span>
             {Columns.reduce((sum , col) => sum + col.tasks.length, 0)}
         </div>
      </div>
+      
+      {/* Add tasks */}
+      <Dialog>
+        <DialogTrigger asChild>
+            <Button className="w-full sm:w-auto">
+                <Plus />
+                 Add Task 
+            </Button>
+        </DialogTrigger>
+          
+          <DialogContent className="w-[95vw] max-w-[425px] mx-auto">
+        <DialogHeader>
+            <DialogTitle>
+                Create New Task
+            </DialogTitle>
+            <p className="text-sm text-gray-600">
+                Add a task to the board 
+            </p>
+        </DialogHeader>
+        <form className="space-y-4">
+            <div className="space-y-2">
+              <Label>Title *</Label>
+              <Input id="title" name="title" placeholder="enter task title"/>  
+            </div>
+
+             <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea id="description" name="description" placeholder="enter task description" rows={3}/>  
+            </div>
+
+             <div className="space-y-2">
+              <Label>Assigne</Label>
+              <Input id="assigne" name="assigne" placeholder="who should do this task"/>  
+            </div>
+
+            <div className="space-y-2">
+              <Label>Priority</Label>
+              <Select name="priority" defaultValue="Medium">
+               <SelectTrigger>
+                <SelectValue/>
+               </SelectTrigger>
+                <SelectContent>
+                     {["High","Medium","Low"].map((priority,key) => (
+                       <SelectItem key={key} value={priority}>
+                        {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                       </SelectItem> 
+                    ))}
+                </SelectContent>      
+              </Select>
+            </div>
+            <div className="space-y-2">
+                <label>Due Date</label>
+                <Input  type="date" id="dueDate" name="dueDate"/>
+            </div>
+            
+             <div className="flex justify-end space-x-2 pt-4">
+                <Button type="submit">
+                  Create Task  
+                </Button>
+            </div>
+
+        </form>
+        </DialogContent>
+
+      </Dialog>
     </div>
+
+    {/* Columns */}
+
+     <div>
+        {Columns.map((column, key) => (
+            <Column  key={key} column={column} 
+            onCreateTask={() => {}} 
+            onEditColumn={() => {}}
+            >
+               <div>
+                {column.tasks.map((task,key) => (
+                    <div>{task.title}</div>
+                    ))} 
+               </div> 
+            </Column>
+        )
+        )}
+     </div>
+
   </main>
 
 </div>
